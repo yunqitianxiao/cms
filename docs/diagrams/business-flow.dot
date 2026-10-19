@@ -1,0 +1,56 @@
+digraph CMS {
+  graph [rankdir=LR, fontname="Noto Sans CJK SC", fontsize=13, labelloc=t,
+         label="CMS 内容管理系统 · 总体业务流程图", nodesep=0.30, ranksep=0.80, pad=0.35];
+  node  [fontname="Noto Sans CJK SC", fontsize=11, shape=box, style="rounded,filled",
+         fillcolor="#F7F9FC", color="#5B6B8C", penwidth=1.1, margin="0.20,0.11"];
+  edge  [fontname="Noto Sans CJK SC", fontsize=10, color="#5B6B8C", arrowsize=0.7];
+
+  /* ── 第 1 列：入口 ── */
+  start [label="访问系统", fillcolor="#E8F0FE", color="#3B6FD4"];
+  auth  [label="认证拦截器\n校验 token", shape=diamond, style=filled,
+         fillcolor="#FFF4E5", color="#D48B3B", margin="0.04,0.02"];
+  perm  [label="AOP 权限切面\n接口级 + 数据级校验", fillcolor="#EAF7EF", color="#3E9C68"];
+
+  /* ── 第 3 列：各角色入口 ── */
+  browse [label="浏览已发布文章", fillcolor="#F2F2F2", color="#7A7A7A"];
+  draft  [label="新建 / 编辑文章\n（草稿 DRAFT）"];
+  users  [label="用户 / 角色 / 权限管理"];
+  cats   [label="分类维护\n（增删改 / 排序 / 启停）"];
+  logs   [label="操作日志查询"];
+
+  /* ── 主链路 ── */
+  submit    [label="提交审核", fillcolor="#EDF2FB", color="#3B6FD4"];
+  pending   [label="待审核\nPENDING", fillcolor="#FFF9E6", color="#C9A227"];
+  review    [label="审核员审核", fillcolor="#EDF2FB", color="#3B6FD4"];
+  published [label="已发布\nPUBLISHED", fillcolor="#EAF7EF", color="#3E9C68"];
+  rejected  [label="已驳回\nREJECTED\n（意见必填）", fillcolor="#FDECEC", color="#C0504D"];
+  offline   [label="已下架\nOFFLINE", fillcolor="#F2F2F2", color="#7A7A7A"];
+
+  oplog [label="操作日志\n（AOP 异步落库）", fillcolor="#EAF7EF", color="#3E9C68", style="rounded,filled,dashed"];
+
+  start -> auth -> perm;
+
+  perm -> browse [label=" 未登录"];
+  perm -> draft  [label=" AUTHOR"];
+  perm -> users  [label=" ADMIN"];
+  perm -> cats   [label=" ADMIN"];
+  perm -> logs   [label=" ADMIN"];
+
+  draft -> submit -> pending -> review;
+  review -> published [label=" 通过"];
+  review -> rejected  [label=" 驳回"];
+  rejected -> draft   [label=" 修改后重新提交", constraint=false];
+  published -> offline [label=" 下架·原因必填"];
+  offline -> submit    [label=" 重新提交", constraint=false];
+  browse -> published  [style=dashed, label=" 仅可见", constraint=false];
+
+  perm -> oplog [style=dotted, label=" 所有写操作"];
+
+  /* 固定列，避免自动布局把同类节点打散 */
+  { rank=same; browse; draft; users; cats; logs; }
+  { rank=same; submit; oplog; }
+  { rank=same; pending; }
+  { rank=same; review; }
+  { rank=same; published; rejected; }
+  { rank=same; offline; }
+}

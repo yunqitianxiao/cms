@@ -1,0 +1,27 @@
+digraph Lifecycle {
+  graph [rankdir=LR, fontname="Noto Sans CJK SC", fontsize=12, labelloc=t,
+         label="文章状态机（未列出的迁移一律拒绝，返回 409 INVALID_STATE）",
+         nodesep=0.55, ranksep=0.75, pad=0.3];
+  node  [fontname="Noto Sans CJK SC", fontsize=11, shape=box, style="rounded,filled", margin="0.22,0.12"];
+  edge  [fontname="Noto Sans CJK SC", fontsize=10, color="#5B6B8C", arrowsize=0.7];
+
+  DRAFT     [label="草稿\nDRAFT",     fillcolor="#EDF2FB", color="#3B6FD4"];
+  PENDING   [label="待审核\nPENDING", fillcolor="#FFF9E6", color="#C9A227"];
+  PUBLISHED [label="已发布\nPUBLISHED", fillcolor="#EAF7EF", color="#3E9C68"];
+  REJECTED  [label="已驳回\nREJECTED", fillcolor="#FDECEC", color="#C0504D"];
+  OFFLINE   [label="已下架\nOFFLINE", fillcolor="#F2F2F2", color="#7A7A7A"];
+  DELETED   [label="逻辑删除\ndeleted=1", fillcolor="#FFFFFF", color="#9AA7C0", style="rounded,dashed,filled"];
+
+  DRAFT -> PENDING    [label="提交审核\n（作者）"];
+  PENDING -> PUBLISHED [label="通过\n（审核员）"];
+  PENDING -> REJECTED  [label="驳回·意见必填\n（审核员）"];
+  PENDING -> DRAFT     [label="撤回\n（作者）"];
+  PENDING -> PUBLISHED [label="管理员代发布", style=dashed];
+  REJECTED -> DRAFT    [label="修改\n（作者）"];
+  PUBLISHED -> OFFLINE [label="下架·原因必填\n（审核员/管理员）"];
+  OFFLINE -> PENDING   [label="重新提交\n（作者）"];
+  DRAFT -> DELETED     [label="删除\n（作者）"];
+  REJECTED -> DELETED  [label="删除\n（作者）"];
+  PUBLISHED -> DELETED [label="禁止直接删除\n（不存在此迁移）", color="#C0504D", style=dashed,
+                        fontcolor="#C0504D", arrowhead=none];
+}

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ylf.cms.module.article.mapper.CmsArticleMapper">
+
+    <!--
+      列表查询：一次 join 出分类名、作者名、审核员名。
+      如果改成"查文章 → 遍历查分类 → 遍历查用户"，20 条数据就是 41 条 SQL（N+1）。
+      自定义 SQL 不受 MP 逻辑删除插件影响，deleted = 0 必须自己写。
+
+      ORDER BY 使用 ${}，但 q.orderBy 只可能由 SortWhitelist 从白名单生成，
+      不接受客户端原始输入 —— 这是全项目唯一一处字符串拼接进 SQL 的地方。
+    -->
+    <sql id="baseColumns">
+        a.id, a.title, a.summary, a.category_id AS categoryId, c.name AS categoryName,
+        a.author_id AS authorId, u1.nickname AS authorName,
+        a.status, a.audit_opinion AS auditOpinion, a.auditor_id AS auditorId,
+        u2.nickname AS auditorName, a.publish_time AS publishTime,
+        a.create_time AS createTime, a.update_time AS updateTime,
+        a.view_count AS viewCount, a.version
+    </sql>
+
+    <sql id="baseFrom">
+        FROM cms_article a
+        LEFT JOIN cms_category c ON c.id = a.category_id
+        LEFT JOIN sys_user u1 ON u1.id = a.author_id
+        LEFT JOIN sys_user u2 ON u2.id = a.auditor_id
+        WHERE a.deleted = 0
+    </sql>
+
+    <select id="selectPageVO" resultType="com.ylf.cms.module.article.vo.ArticleVO">
+        SELECT <include refid="baseColumns"/>
+        <include refid="baseFrom"/>
+        <if test="q.keyword != null and q.keyword != ''">
+            AND (a.title LIKE CONCAT('%', #{q.keyword}, '%')
+                 OR a.summary LIKE CONCAT('%', #{q.keyword}, '%'))
+        </if>
+        <if test="q.categoryIds != null and q.categoryIds.size() > 0">
+            AND a.category_id IN
+            <foreach collection="q.categoryIds" item="cid" open="(" separator="," close=")">
+                #{cid}
+            </foreach>
+        </if>
+        <if test="q.status != null and q.status != ''">
+            AND a.status = #{q.status}
+        </if>
+        <if test="q.authorId != null">
+            AND a.author_id = #{q.authorId}
+        </if>
+        ORDER BY ${q.orderBy}
+    </select>
+
+    <select id="selectDetailById" resultType="com.ylf.cms.module.article.vo.ArticleVO">
+        SELECT <include refid="baseColumns"/>, a.content
+        <include refid="baseFrom"/>
+        AND a.id = #{id}
+    </select>
+
+</mapper>

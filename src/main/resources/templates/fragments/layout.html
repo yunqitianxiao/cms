@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · 云章 CMS'">云章 CMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<!-- 侧边栏：菜单项用 data-perm 标注所需权限，由 boot.js 按当前用户隐藏无权项 -->
+<aside class="sidebar" th:fragment="sidebar(active)">
+    <div class="brand">
+        <div class="mark">云</div>
+        <div class="name">云章 CMS</div>
+        <div class="ver">v1.0</div>
+    </div>
+
+    <div class="nav-group">
+        <div class="label">概览</div>
+        <a class="nav-item" href="/app/dashboard" data-nav="dashboard"
+           th:classappend="${active=='dashboard'} ? ' active'">
+            <span class="ico">◈</span><span>工作台</span>
+        </a>
+    </div>
+
+    <div class="nav-group">
+        <div class="label">内容</div>
+        <a class="nav-item" href="/app/articles" data-nav="articles"
+           th:classappend="${active=='articles'} ? ' active'"
+           data-perm="article:read">
+            <span class="ico">▤</span><span>文章列表</span>
+        </a>
+        <a class="nav-item" href="/app/article-edit" data-nav="article-edit"
+           th:classappend="${active=='article-edit'} ? ' active'"
+           data-perm="article:create">
+            <span class="ico">✎</span><span>写新文章</span>
+        </a>
+        <a class="nav-item" href="/app/review" data-nav="review"
+           th:classappend="${active=='review'} ? ' active'"
+           data-perm="article:audit">
+            <span class="ico">✓</span><span>内容审核</span><span class="count" id="nav-pending-count"></span>
+        </a>
+        <a class="nav-item" href="/app/categories" data-nav="categories"
+           th:classappend="${active=='categories'} ? ' active'"
+           data-perm="category:write">
+            <span class="ico">⌸</span><span>分类管理</span>
+        </a>
+    </div>
+
+    <div class="nav-group">
+        <div class="label">账号与权限</div>
+        <a class="nav-item" href="/app/users" data-nav="users"
+           th:classappend="${active=='users'} ? ' active'"
+           data-perm="user:manage">
+            <span class="ico">◉</span><span>用户管理</span>
+        </a>
+        <a class="nav-item" href="/app/roles" data-nav="roles"
+           th:classappend="${active=='roles'} ? ' active'"
+           data-perm="role:manage,user:manage">
+            <span class="ico">⚿</span><span>角色与权限</span>
+        </a>
+    </div>
+
+    <div class="nav-group">
+        <div class="label">系统</div>
+        <a class="nav-item" href="/app/logs" data-nav="logs"
+           th:classappend="${active=='logs'} ? ' active'"
+           data-perm="log:read">
+            <span class="ico">☰</span><span>操作日志</span>
+        </a>
+        <a class="nav-item" href="/portal" target="_blank" rel="noopener">
+            <span class="ico">↗</span><span>浏览前台</span>
+        </a>
+    </div>
+
+    <div class="sidebar-foot">
+        <div class="user-chip">
+            <div class="avatar" id="me-avatar">·</div>
+            <div class="who">
+                <div class="name" id="me-name">加载中…</div>
+                <div class="role" id="me-role">—</div>
+            </div>
+            <button class="out" id="btn-logout" title="退出登录">退出</button>
+        </div>
+    </div>
+</aside>
+
+</body>
+</html>

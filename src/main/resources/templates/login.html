@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('登录')}"></head>
+<body>
+<div class="auth-wrap">
+    <section class="auth-brand">
+        <div class="auth-logo"><span class="mark">云</span><span>云章 CMS</span></div>
+
+        <div>
+            <h1 class="auth-title">把内容交给流程，<br>把流程讲清楚给<em>人</em>。</h1>
+            <p class="auth-sub">
+                从起草、审核、发布到下架，每一步都有状态约束和操作留痕。
+                站点里还内置了一位"知道每个页面在哪、要什么权限"的引导助手。
+            </p>
+
+            <div class="auth-points">
+                <div class="auth-point">
+                    <div class="dot">1</div>
+                    <div><b>状态机约束</b>五态七迁，非法流转直接被拒，不会出现"发布中的草稿"。</div>
+                </div>
+                <div class="auth-point">
+                    <div class="dot">2</div>
+                    <div><b>权限到接口</b>AOP 在方法入口校验，前端藏起来的按钮后端也拦得住。</div>
+                </div>
+                <div class="auth-point">
+                    <div class="dot">3</div>
+                    <div><b>引导即文档</b>页面卡片由注解反射生成，代码改了引导不会说旧话。</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-foot">JAVA 框架技术（一）课程项目 · Spring Boot + MyBatis-Plus + Thymeleaf</div>
+    </section>
+
+    <section class="auth-main">
+        <div class="auth-box">
+            <h2>登录</h2>
+            <p class="hint">使用课程演示账号，或自己注册一个作者账号。</p>
+
+            <form id="login-form" autocomplete="on">
+                <div class="field">
+                    <label for="username">用户名</label>
+                    <input id="username" name="username" type="text" placeholder="admin" required autofocus>
+                </div>
+                <div class="field">
+                    <label for="password">密码</label>
+                    <input id="password" name="password" type="password" placeholder="至少 6 位" required>
+                </div>
+                <div id="login-error" class="field" style="display:none;color:var(--danger);font-size:12.5px"></div>
+                <button class="btn btn-primary btn-block" type="submit" id="btn-login">进入系统</button>
+            </form>
+
+            <p style="margin-top:16px;font-size:13px;color:var(--muted);text-align:center">
+                还没有账号？<a href="/register">注册一个</a>
+                <span style="margin:0 6px;color:var(--line-strong)">|</span>
+                <a href="/portal">先去前台看看</a>
+            </p>
+
+            <div class="demo-box">
+                <b>演示账号（密码都是 123456）</b>
+                <div>管理员 <code>admin</code> · 审核员 <code>auditor</code></div>
+                <div>作者 <code>author</code> · 游客 <code>guest</code></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="module" src="/js/pages/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('写文章')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('article-edit')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">内容 / <a href="/app/articles">文章列表</a></div>
+                <h1 id="page-title">写新文章</h1>
+            </div>
+            <div class="spacer"></div>
+            <a class="btn" href="/app/articles">返回列表</a>
+        </header>
+
+        <main class="content">
+            <div id="notice" style="display:none;margin-bottom:16px;padding:12px 14px;border-radius:10px;font-size:13px"></div>
+
+            <div class="editor-grid">
+                <section class="card">
+                    <div style="padding:18px 18px 4px">
+                        <input class="editor-title" id="article-title" type="text" maxlength="200"
+                               placeholder="标题，写清楚这篇讲什么">
+                        <div class="field" style="margin:14px 0 0">
+                            <input id="article-summary" type="text" maxlength="500"
+                                   placeholder="摘要（选填）：一两句话说明这篇的内容，会显示在列表里">
+                        </div>
+                    </div>
+                    <div style="padding:0 18px">
+                        <textarea class="editor-body" id="article-content"
+                                  placeholder="正文从这里开始。支持换行，暂不支持富文本。"></textarea>
+                    </div>
+                    <div class="editor-foot">
+                        <span class="muted" style="font-size:12px" id="word-count">0 字</span>
+                        <span class="spacer"></span>
+                        <button class="btn" id="btn-save">存为草稿</button>
+                        <button class="btn btn-primary" id="btn-save-submit">保存并提交审核</button>
+                    </div>
+                </section>
+
+                <aside style="display:grid;gap:16px">
+                    <section class="card">
+                        <div class="card-head"><h2>发布设置</h2></div>
+                        <div class="card-body">
+                            <div class="field">
+                                <label for="article-category">分类<span class="req">*</span></label>
+                                <select id="article-category">
+                                    <option value="">加载中…</option>
+                                </select>
+                                <div class="desc">只能选启用状态的分类；停用的分类会标注出来。</div>
+                            </div>
+                            <div class="meta-row"><span class="muted">当前状态</span><span id="meta-status">新建</span></div>
+                            <div class="meta-row"><span class="muted">作者</span><span id="meta-author">—</span></div>
+                            <div class="meta-row"><span class="muted">最后更新</span><span id="meta-update">—</span></div>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <div class="card-head"><h2>状态规则</h2></div>
+                        <div class="card-body side-note">
+                            <p style="margin-top:0"><b>草稿</b>只有你能看到，可以反复修改。</p>
+                            <p><b>提交后</b>进入待审核，此时要先撤回才能改。</p>
+                            <p><b>被驳回</b>会回到可编辑状态，按审核意见改完再提交。</p>
+                            <p style="margin-bottom:0">已<b>发布</b>的文章不能直接改，需要先下架。</p>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/article-edit.js"></script>
+</body>
+</html>

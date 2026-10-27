@@ -16,7 +16,6 @@ digraph Lifecycle {
   PENDING -> PUBLISHED [label="通过\n（审核员）"];
   PENDING -> REJECTED  [label="驳回·意见必填\n（审核员）"];
   PENDING -> DRAFT     [label="撤回\n（作者）"];
-  PENDING -> PUBLISHED [label="管理员代发布", style=dashed];
   REJECTED -> DRAFT    [label="修改\n（作者）"];
   PUBLISHED -> OFFLINE [label="下架·原因必填\n（审核员/管理员）"];
   OFFLINE -> PENDING   [label="重新提交\n（作者）"];

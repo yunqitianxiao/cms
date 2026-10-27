@@ -1,0 +1,72 @@
+server:
+  # 8090 而不是 8080：本机装了系统级 tomcat9 服务并占着 8080（访问它会看到 Tomcat 默认页），
+  # 直接起在 8080 会 BindException。换机器/停掉 tomcat9 后可改回 8080。
+  port: 8090
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        same-site: lax
+
+spring:
+  application:
+    name: cms
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cms_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: cmsapp
+    password: Cms@2026
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 5000
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+  jackson:
+    # LocalDateTime 由 JSR-310 模块按 ISO-8601 输出（2026-10-27T10:00:00），
+    # spring.jackson.date-format 对 java.time 不生效，别在这里写 yyyy-MM-dd HH:mm:ss 骗自己；
+    # 前端 fmtTime 负责把 T 换成空格并截到分钟。
+    default-property-inclusion: non_null
+  web:
+    resources:
+      add-mappings: true
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.ylf.cms.module
+  configuration:
+    map-underscore-to-camel-case: true
+    # 用 Slf4j 输出 SQL，配合下面的 logging.level 打开；不要用 StdOutImpl，它会绕过日志系统
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  level:
+    root: info
+    com.ylf.cms: info
+    # 需要统计 SQL 条数（N+1 对照实验）时把这几行改成 debug
+    com.ylf.cms.module.article.mapper: info
+    com.ylf.cms.module.category.mapper: info
+
+app:
+  guide:
+    # 模型通道：总开关打开只代表"允许接入"，真正调用还要求有密钥——
+    # 用户在引导对话框里填自己的 key（只存当前会话），或服务端配 apiKey / DEEPSEEK_API_KEY。
+    # 两者都没有时完整回落到 L0 规则路由，离线也能演示。
+    llm:
+      enabled: true
+      base-url: https://api.deepseek.com
+      model: deepseek-chat
+      api-key: ${DEEPSEEK_API_KEY:}
+      # DeepSeek 正常 2–5 秒；2 秒会把正常回答也判成超时
+      timeout-ms: 8000
+    # 意图命中阈值，低于此值视为"未命中"
+    min-score: 0.15

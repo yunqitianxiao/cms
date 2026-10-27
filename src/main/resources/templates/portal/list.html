@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('前台')}"></head>
+<body>
+<div class="portal-top">
+    <div class="inner">
+        <a class="name" href="/portal" style="color:var(--ink);text-decoration:none">云章 · 内容站</a>
+        <div style="flex:1"></div>
+        <a href="/portal" style="color:var(--ink-2)">全部文章</a>
+        <a class="btn btn-sm" href="/login">进入后台</a>
+    </div>
+</div>
+
+<section class="portal-hero">
+    <div class="inner">
+        <h1>写下来，才留得下。</h1>
+        <p>这里只展示已发布的文章。草稿、待审核、已驳回的内容在前台不可见。</p>
+    </div>
+</section>
+
+<main class="portal-body">
+    <div class="portal-cats" id="cats">
+        <button class="cat-pill active" data-id="">全部</button>
+    </div>
+
+    <div class="post-grid" id="post-grid">
+        <div class="loading" style="grid-column:1/-1"><span class="spinner"></span>加载中</div>
+    </div>
+
+    <div class="pager" id="pager" style="border-top:none"></div>
+</main>
+
+<script type="module" src="/js/pages/portal-list.js"></script>
+</body>
+</html>

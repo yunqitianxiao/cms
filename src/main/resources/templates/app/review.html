@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('内容审核')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('review')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">内容</div>
+                <h1>内容审核</h1>
+            </div>
+            <div class="spacer"></div>
+            <span class="muted" id="pending-hint"></span>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">待审核稿件</div>
+                    <div class="d">通过后文章立即出现在前台；驳回必须写意见，作者能看到。</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:16px;padding:11px 14px;border-radius:10px;background:var(--brand-soft);color:var(--brand-ink);font-size:13px">
+                规则：不能审核自己提交的文章。想跳过这条规则只能换账号，系统里没有后门。
+            </div>
+
+            <section class="card">
+                <div class="toolbar">
+                    <span style="font-size:13px">共 <b id="total">0</b> 篇待审核</span>
+                    <div style="flex:1"></div>
+                    <button class="btn btn-sm" id="btn-batch-approve" disabled>批量通过（<span id="sel-count">0</span>）</button>
+                    <button class="btn btn-sm" id="btn-refresh">刷新</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th class="col-check"><input type="checkbox" id="check-all"></th>
+                            <th>标题</th>
+                            <th>分类</th>
+                            <th>作者</th>
+                            <th>更新时间</th>
+                            <th class="actions">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="review-body">
+                        <tr><td colspan="6"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pager" id="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/review.js"></script>
+</body>
+</html>

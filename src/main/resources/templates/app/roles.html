@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('角色与权限')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('roles')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">账号与权限</div>
+                <h1>角色与权限</h1>
+            </div>
+            <div class="spacer"></div>
+            <span class="muted" style="font-size:12.5px">权限改动对下一个请求立即生效</span>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">角色矩阵</div>
+                    <div class="d">用户通过角色获得权限；接口层会重新校验，前端藏起来的按钮不算数。</div>
+                </div>
+            </div>
+
+            <div class="split">
+                <section class="card">
+                    <div class="card-head">
+                        <h2>角色</h2>
+                        <div class="spacer"></div>
+                        <button class="btn btn-sm" id="btn-add-role">新增</button>
+                    </div>
+                    <div class="role-list" id="role-list">
+                        <div class="loading"><span class="spinner"></span>加载中</div>
+                    </div>
+                </section>
+
+                <section class="card" id="perm-card">
+                    <div class="card-head">
+                        <h2 id="perm-title">选择左侧角色</h2>
+                        <div class="spacer"></div>
+                        <button class="btn btn-sm" id="btn-save-perm" style="display:none">保存权限</button>
+                    </div>
+                    <div class="card-body" id="perm-body">
+                        <div class="empty"><div class="big">⚿</div>先选一个角色，再勾选它应该拥有的权限。</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/roles.js"></script>
+</body>
+</html>

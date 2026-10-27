@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('分类管理')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('categories')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">内容</div>
+                <h1>分类管理</h1>
+            </div>
+            <div class="spacer"></div>
+            <button class="btn btn-primary" id="btn-add-root">新增一级分类</button>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">分类树</div>
+                    <div class="d">最多三级。有子分类、或下面还挂着文章的分类不能删除。</div>
+                </div>
+            </div>
+
+            <section class="card">
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th>分类名称</th>
+                            <th>层级</th>
+                            <th class="num">排序</th>
+                            <th>状态</th>
+                            <th>说明</th>
+                            <th class="actions">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="cat-body">
+                        <tr><td colspan="6"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/categories.js"></script>
+</body>
+</html>

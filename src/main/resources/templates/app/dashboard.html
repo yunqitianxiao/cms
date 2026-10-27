@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('工作台')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">概览</div>
+                <h1>工作台</h1>
+            </div>
+            <div class="spacer"></div>
+            <span class="muted" id="today"></span>
+            <a class="btn btn-primary" href="/app/article-edit">写新文章</a>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t" id="greeting">你好</div>
+                    <div class="d">这里的数字是实时查库算出来的，不是缓存的快照。</div>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat">
+                    <div class="k">我的草稿</div>
+                    <div class="v" id="st-draft">—</div>
+                    <div class="sub">还没提交过，或驳回后改回草稿</div>
+                </div>
+                <div class="stat warn">
+                    <div class="k">审核中</div>
+                    <div class="v" id="st-pending">—</div>
+                    <div class="sub">已提交，等审核员处理</div>
+                </div>
+                <div class="stat danger">
+                    <div class="k">被驳回</div>
+                    <div class="v" id="st-rejected">—</div>
+                    <div class="sub">需要按意见修改后重新提交</div>
+                </div>
+                <div class="stat ok">
+                    <div class="k">已发布</div>
+                    <div class="v" id="st-published">—</div>
+                    <div class="sub">前台读者可见</div>
+                </div>
+            </div>
+
+            <div class="stat-grid" id="global-stats" style="display:none">
+                <div class="stat">
+                    <div class="k">全站待审核</div>
+                    <div class="v" id="st-pending-total">—</div>
+                    <div class="sub">需要审核员处理</div>
+                </div>
+                <div class="stat">
+                    <div class="k">全站已发布</div>
+                    <div class="v" id="st-published-total">—</div>
+                </div>
+                <div class="stat">
+                    <div class="k">分类数</div>
+                    <div class="v" id="st-categories">—</div>
+                </div>
+                <div class="stat">
+                    <div class="k">账号数</div>
+                    <div class="v" id="st-users">—</div>
+                </div>
+            </div>
+
+            <div class="dash-grid" id="bottom-grid">
+                <section class="card">
+                    <div class="card-head">
+                        <h2>我最近的稿件</h2>
+                        <div class="spacer"></div>
+                        <a class="btn-link" href="/app/articles?mine=1">查看全部</a>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data">
+                            <thead>
+                            <tr><th>标题</th><th>状态</th><th>更新时间</th><th></th></tr>
+                            </thead>
+                            <tbody id="recent-body">
+                            <tr><td colspan="4"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-head">
+                        <h2>下一步可以做什么</h2>
+                        <div class="spacer"></div>
+                        <span class="muted" style="font-size:12px">来自引导助手</span>
+                    </div>
+                    <div class="card-body" id="suggestions">
+                        <div class="loading"><span class="spinner"></span>正在看你的稿件状态</div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/dashboard.js"></script>
+</body>
+</html>

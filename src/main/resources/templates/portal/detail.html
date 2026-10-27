@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('文章')}"></head>
+<body th:attr="data-article-id=${articleId}">
+<div class="portal-top">
+    <div class="inner">
+        <a class="name" href="/portal" style="color:var(--ink);text-decoration:none">云章 · 内容站</a>
+        <div style="flex:1"></div>
+        <a href="/portal" style="color:var(--ink-2)">全部文章</a>
+        <a class="btn btn-sm" href="/login">进入后台</a>
+    </div>
+</div>
+
+<main class="portal-body">
+    <a href="/portal" style="font-size:13px;color:var(--muted)">← 返回列表</a>
+    <article class="article-view" id="article-view">
+        <div class="loading"><span class="spinner"></span>加载中</div>
+    </article>
+</main>
+
+<script type="module" src="/js/pages/portal-detail.js"></script>
+</body>
+</html>

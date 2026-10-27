@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('用户管理')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('users')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">账号与权限</div>
+                <h1>用户管理</h1>
+            </div>
+            <div class="spacer"></div>
+            <button class="btn btn-primary" id="btn-add">新增用户</button>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">账号</div>
+                    <div class="d">停用会让账号立即下线；系统至少保留一名可用管理员。</div>
+                </div>
+            </div>
+
+            <section class="card">
+                <div class="toolbar">
+                    <input class="grow" id="f-keyword" type="search" placeholder="搜索用户名或昵称">
+                    <select class="w-md" id="f-role">
+                        <option value="">全部角色</option>
+                    </select>
+                    <select class="w-sm" id="f-status">
+                        <option value="">全部状态</option>
+                        <option value="1">启用</option>
+                        <option value="0">停用</option>
+                    </select>
+                    <button class="btn btn-primary" id="btn-search">筛选</button>
+                    <button class="btn" id="btn-reset">重置</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>昵称</th>
+                            <th>角色</th>
+                            <th>联系方式</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th class="actions">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="user-body">
+                        <tr><td colspan="7"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pager" id="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/users.js"></script>
+</body>
+</html>

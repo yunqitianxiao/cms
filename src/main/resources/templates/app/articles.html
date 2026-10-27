@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('文章列表')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('articles')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">内容</div>
+                <h1>文章列表</h1>
+            </div>
+            <div class="spacer"></div>
+            <a class="btn btn-primary" href="/app/article-edit">写新文章</a>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">稿件</div>
+                    <div class="d">按状态和分类筛选；标题可以改，状态不能跳。</div>
+                </div>
+            </div>
+
+            <section class="card">
+                <div class="toolbar">
+                    <input class="grow" id="article-keyword" type="search" placeholder="搜索标题或摘要">
+                    <select class="w-md" id="f-status">
+                        <option value="">全部状态</option>
+                        <option value="DRAFT">草稿</option>
+                        <option value="PENDING">待审核</option>
+                        <option value="PUBLISHED">已发布</option>
+                        <option value="REJECTED">已驳回</option>
+                        <option value="OFFLINE">已下架</option>
+                    </select>
+                    <select class="w-md" id="f-category">
+                        <option value="">全部分类</option>
+                    </select>
+                    <select class="w-md" id="f-sort">
+                        <option value="updateTime desc">按更新时间</option>
+                        <option value="createTime desc">按创建时间</option>
+                        <option value="publishTime desc">按发布时间</option>
+                        <option value="viewCount desc">按阅读量</option>
+                        <option value="title asc">按标题</option>
+                    </select>
+                    <label class="check"><input type="checkbox" id="f-mine"> 只看我的</label>
+                    <button class="btn btn-primary" id="btn-search">筛选</button>
+                    <button class="btn" id="btn-reset">重置</button>
+                </div>
+
+                <div class="toolbar" id="bulk-bar" style="display:none;background:#f8faff;border-bottom:1px solid var(--line)">
+                    <span style="font-size:13px">已选 <b id="bulk-count">0</b> 篇</span>
+                    <div class="spacer" style="flex:1"></div>
+                    <button class="btn btn-sm" data-bulk="approve">批量通过</button>
+                    <button class="btn btn-sm btn-danger" data-bulk="offline">批量下架</button>
+                    <button class="btn btn-sm btn-ghost" data-bulk="clear">取消选择</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th class="col-check"><input type="checkbox" id="check-all" title="全选本页"></th>
+                            <th>标题</th>
+                            <th>分类</th>
+                            <th>状态</th>
+                            <th>作者</th>
+                            <th>更新时间</th>
+                            <th class="actions">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody id="article-body">
+                        <tr><td colspan="7"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pager" id="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/articles.js"></script>
+</body>
+</html>

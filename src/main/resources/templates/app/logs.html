@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('操作日志')}"></head>
+<body>
+<div class="shell">
+    <aside class="sidebar" th:replace="~{fragments/layout :: sidebar('logs')}"></aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div>
+                <div class="crumb">系统</div>
+                <h1>操作日志</h1>
+            </div>
+            <div class="spacer"></div>
+            <span class="muted" style="font-size:12.5px">密码等敏感字段在落库前已脱敏</span>
+        </header>
+
+        <main class="content">
+            <div class="page-head">
+                <div>
+                    <div class="t">审计记录</div>
+                    <div class="d">写操作、登录、以及被权限拦下的越权尝试都会记录在这里。</div>
+                </div>
+            </div>
+
+            <section class="card">
+                <div class="toolbar">
+                    <input class="grow" id="f-keyword" type="search" placeholder="搜索操作名或用户名">
+                    <select class="w-sm" id="f-type">
+                        <option value="">全部类型</option>
+                        <option value="LOGIN">登录</option>
+                        <option value="ARTICLE">文章</option>
+                        <option value="AUDIT">审核</option>
+                        <option value="CATEGORY">分类</option>
+                        <option value="USER">用户</option>
+                        <option value="ROLE">角色</option>
+                        <option value="AI_QUERY">引导问答</option>
+                    </select>
+                    <select class="w-sm" id="f-result">
+                        <option value="">全部结果</option>
+                        <option value="SUCCESS">成功</option>
+                        <option value="DENIED">被拦截</option>
+                        <option value="FAIL">失败</option>
+                    </select>
+                    <input class="w-md" id="f-start" type="date" title="开始日期">
+                    <span class="muted">→</span>
+                    <input class="w-md" id="f-end" type="date" title="结束日期">
+                    <button class="btn btn-primary" id="btn-search">查询</button>
+                    <button class="btn" id="btn-reset">重置</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th class="nowrap">时间</th>
+                            <th>操作人</th>
+                            <th>类型</th>
+                            <th>操作</th>
+                            <th>结果</th>
+                            <th class="num">耗时</th>
+                            <th>IP</th>
+                            <th class="actions">详情</th>
+                        </tr>
+                        </thead>
+                        <tbody id="log-body">
+                        <tr><td colspan="8"><div class="loading"><span class="spinner"></span>加载中</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pager" id="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script type="module" src="/js/pages/logs.js"></script>
+</body>
+</html>

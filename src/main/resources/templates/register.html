@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('注册')}"></head>
+<body>
+<div class="auth-wrap">
+    <section class="auth-brand">
+        <div class="auth-logo"><span class="mark">云</span><span>云章 CMS</span></div>
+        <div>
+            <h1 class="auth-title">注册后你就是<br><em>作者</em>。</h1>
+            <p class="auth-sub">
+                作者可以起草文章、修改自己的稿件、提交审核。
+                文章发布需要审核员通过，这条线在系统里是写死在状态机里的。
+            </p>
+            <div class="auth-points">
+                <div class="auth-point">
+                    <div class="dot">→</div>
+                    <div><b>起草</b>保存为草稿，随时继续编辑。</div>
+                </div>
+                <div class="auth-point">
+                    <div class="dot">→</div>
+                    <div><b>提交</b>进入待审核，此时不能直接改，可以先撤回。</div>
+                </div>
+                <div class="auth-point">
+                    <div class="dot">→</div>
+                    <div><b>驳回后</b>文章回到可编辑状态，改完重新提交。</div>
+                </div>
+            </div>
+        </div>
+        <div class="auth-foot">账号信息只用于课程演示，不会对外发送。</div>
+    </section>
+
+    <section class="auth-main">
+        <div class="auth-box">
+            <h2>创建账号</h2>
+            <p class="hint">用户名 4-20 位字母、数字或下划线。</p>
+
+            <form id="register-form">
+                <div class="field">
+                    <label for="username">用户名<span class="req">*</span></label>
+                    <input id="username" type="text" required minlength="4" maxlength="20"
+                           pattern="[A-Za-z0-9_]{4,20}" placeholder="例如 zhangsan" autofocus>
+                </div>
+                <div class="field">
+                    <label for="nickname">昵称<span class="req">*</span></label>
+                    <input id="nickname" type="text" required maxlength="50" placeholder="显示在文章署名处">
+                </div>
+                <div class="field">
+                    <label for="password">密码<span class="req">*</span></label>
+                    <input id="password" type="password" required minlength="6" maxlength="32" placeholder="6-32 位">
+                </div>
+                <div class="field">
+                    <label for="password2">确认密码<span class="req">*</span></label>
+                    <input id="password2" type="password" required minlength="6" maxlength="32">
+                </div>
+                <div class="field">
+                    <label for="email">邮箱</label>
+                    <input id="email" type="email" maxlength="100" placeholder="选填">
+                </div>
+                <div id="reg-error" class="field" style="display:none;color:var(--danger);font-size:12.5px"></div>
+                <button class="btn btn-primary btn-block" type="submit" id="btn-reg">注册</button>
+            </form>
+
+            <p style="margin-top:16px;font-size:13px;color:var(--muted);text-align:center">
+                已有账号？<a href="/login">直接登录</a>
+            </p>
+        </div>
+    </section>
+</div>
+
+<script type="module" src="/js/pages/register.js"></script>
+</body>
+</html>

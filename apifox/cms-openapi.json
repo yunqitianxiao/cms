@@ -1,0 +1,3656 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "云章 CMS 接口",
+    "version": "1.0.0",
+    "description": "《JAVA框架技术(一)》课程项目。统一响应 Result{code,message,data,traceId}；业务码 5 位，HTTP 状态码与业务码同时表达。鉴权为 Session Cookie（JSESSIONID）。\n\n导入方式：Apifox → 导入数据 → OpenAPI/Swagger → 选择本文件。导入后先调 /api/auth/login（admin/123456）建立 Cookie，其余接口即可直接用。"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8090",
+      "description": "本地开发"
+    }
+  ],
+  "tags": [
+    {
+      "name": "认证"
+    },
+    {
+      "name": "文章"
+    },
+    {
+      "name": "分类"
+    },
+    {
+      "name": "用户"
+    },
+    {
+      "name": "角色"
+    },
+    {
+      "name": "日志"
+    },
+    {
+      "name": "工作台"
+    },
+    {
+      "name": "站内引导"
+    },
+    {
+      "name": "前台"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "登录",
+        "description": "成功后换新 Session（防会话固定），返回角色与权限点。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLoginUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "40101 用户名或密码错误 / 40102 账号已停用"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "退出登录",
+        "description": "销毁 Session。",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "注册",
+        "description": "默认赋予 GUEST 角色，返回新用户 id。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "40000 参数不合法 / 40902 用户名已存在"
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "认证"
+        ],
+        "summary": "当前登录人",
+        "description": "前端启动时用它决定菜单。",
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLoginUser"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles": {
+      "get": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "分页查询",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "页码，默认 1",
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "每页条数，默认 10，最大 200",
+            "example": 10
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "标题或摘要包含"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "DRAFT/PENDING/PUBLISHED/REJECTED/OFFLINE"
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "分类 id（含所有子分类）"
+          },
+          {
+            "name": "authorId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "作者 id"
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "只看我的"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "逻辑字段,方向;逻辑字段,方向，最多 3 段。字段：createTime/updateTime/publishTime/title/viewCount"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分页结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageArticle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "新建文章（存为草稿）",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "新文章 id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}": {
+      "get": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "详情",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "文章",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultArticle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "修改（仅草稿/被驳回）",
+        "description": "version 不一致返回 40900；非本人且无 article:update:any 返回 40301。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "乐观锁冲突（40900）/非法状态（40901）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "删除（仅草稿/被驳回）",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "当前状态不允许（40901）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/submit": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "提交审核",
+        "description": "DRAFT → PENDING",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "非法状态迁移（40901）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/withdraw": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "撤回",
+        "description": "PENDING → DRAFT",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "非法状态迁移（40901）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/resubmit": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "重新提交",
+        "description": "OFFLINE → PENDING",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "非法状态迁移（40901）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/approve": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "审核通过",
+        "description": "PENDING → PUBLISHED；不能审自己的稿（40300）；分类已停用会被拒绝。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpinionRequest"
+              }
+            }
+          },
+          "description": "可选意见",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "非法状态或分类停用"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/reject": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "驳回（意见必填）",
+        "description": "PENDING → REJECTED。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpinionRequest"
+              }
+            }
+          },
+          "description": "意见必填",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "意见为空（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/{id}/offline": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "下架（原因必填）",
+        "description": "PUBLISHED → OFFLINE。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonRequest"
+              }
+            }
+          },
+          "description": "原因必填",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/batch/approve": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "批量通过",
+        "description": "逐条容错，不整体回滚。失败项在 failed（id 数组）与 reasons（id→原因）里。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleBatchRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "批量结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/articles/batch/offline": {
+      "post": {
+        "tags": [
+          "文章"
+        ],
+        "summary": "批量下架",
+        "description": "同批量通过。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ArticleBatchRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "批量结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultBatch"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "平铺列表",
+        "responses": {
+          "200": {
+            "description": "全部分类",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCategoryList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "新增",
+        "description": "level 由服务端推导；超过 3 级返回 40001。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "新分类 id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/categories/tree": {
+      "get": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "树形结构",
+        "parameters": [
+          {
+            "name": "onlyEnabled",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "只要启用状态"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "树",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCategoryTree"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/categories/{id}": {
+      "put": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "修改（忽略 parentId）",
+        "description": "停用前会检查启用的子分类，存在则 40903。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategorySaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "被引用（40903）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "删除",
+        "description": "有子分类或挂着文章返回 40903。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "被引用（40903）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/categories/{id}/status": {
+      "put": {
+        "tags": [
+          "分类"
+        ],
+        "summary": "启用/停用",
+        "description": "停用含启用子分类的分类返回 40903。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "1 启用 / 0 停用"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "存在启用的子分类（40903）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "分页查询",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "页码，默认 1",
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "每页条数，默认 10，最大 200",
+            "example": 10
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户名/昵称"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "1 启用 / 0 停用"
+          },
+          {
+            "name": "roleCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "角色编码"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分页结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "新增",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "新用户 id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "详情",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "用户",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "修改资料（用户名不可改）",
+        "description": "password 为空表示不改密码。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "删除（逻辑删除）",
+        "description": "删除自己、删除最后一个可用管理员返回 40900；名下有稿件返回 40903。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "40900/40903"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}/status": {
+      "put": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "启用/停用",
+        "description": "停用自己或最后一个可用管理员返回 40900。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "1 启用 / 0 停用"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "40900"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/users/{id}/roles": {
+      "put": {
+        "tags": [
+          "用户"
+        ],
+        "summary": "分配角色（全量覆盖）",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolesRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/roles": {
+      "get": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "角色列表（含用户数与权限 id）",
+        "responses": {
+          "200": {
+            "description": "角色列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultRoleList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "新增",
+        "description": "roleCode 为 2–20 位大写字母或下划线，创建后不可改。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "新角色 id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/roles/permissions": {
+      "get": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "全部权限点（按组）",
+        "responses": {
+          "200": {
+            "description": "权限点",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPermissionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/roles/{id}": {
+      "put": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "修改",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleSaveRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "删除",
+        "description": "内置 ADMIN 角色不可删；有用户引用返回 40903。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "40900/40903"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/roles/{id}/permissions": {
+      "put": {
+        "tags": [
+          "角色"
+        ],
+        "summary": "保存权限（全量覆盖）",
+        "description": "ADMIN 角色必须保留 role:manage，否则 40900（防止无人能再调整权限）。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignPermsRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          },
+          "409": {
+            "description": "40900"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/logs": {
+      "get": {
+        "tags": [
+          "日志"
+        ],
+        "summary": "分页查询",
+        "description": "params 里的 password/token 已脱敏为 ***。",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "页码，默认 1",
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "每页条数，默认 10，最大 200",
+            "example": 10
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "操作名/用户名/URI"
+          },
+          {
+            "name": "logType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "LOGIN/ARTICLE/AUDIT/CATEGORY/USER/ROLE/AI_QUERY"
+          },
+          {
+            "name": "result",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "SUCCESS/DENIED/FAIL"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "yyyy-MM-dd"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "yyyy-MM-dd"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分页结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageLog"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/dashboard/stats": {
+      "get": {
+        "tags": [
+          "工作台"
+        ],
+        "summary": "统计数字",
+        "responses": {
+          "200": {
+            "description": "统计",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultStats"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/pages": {
+      "get": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "全部页面卡片",
+        "description": "按当前用户标注 accessible/denyHint，前端据此置灰。",
+        "responses": {
+          "200": {
+            "description": "卡片列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultGuideCardList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/chat": {
+      "post": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "提问",
+        "description": "source=RULE/LLM/EMPTY；notFound=true 表示系统里没有该功能，cards 为空。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuideChatRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "回答",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultGuideChat"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/suggestions": {
+      "get": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "快捷问题（带实时数字）",
+        "responses": {
+          "200": {
+            "description": "建议列表",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultSuggestionList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/llm": {
+      "get": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "模型通道状态",
+        "description": "只回显是否配置、密钥来源与尾号，不回显完整密钥。",
+        "responses": {
+          "200": {
+            "description": "状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLlmSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "填写自己的模型密钥",
+        "description": "密钥只写入当前会话（服务端内存），不落库、不进日志；退出登录即失效。长度 8–200、不含空白。",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LlmSettingsRequest"
+              }
+            }
+          },
+          "description": "",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "保存后的状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLlmSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "清除本会话密钥",
+        "description": "清除后回落到服务端配置的密钥（若有）。",
+        "responses": {
+          "200": {
+            "description": "清除后的状态",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLlmSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/llm/test": {
+      "post": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "测试模型连通性",
+        "description": "失败也返回 code=0，用 data.ok 表达结果；message 已做密钥脱敏。",
+        "responses": {
+          "200": {
+            "description": "测试结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLlmTest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/guide/selfcheck": {
+      "get": {
+        "tags": [
+          "站内引导"
+        ],
+        "summary": "站点地图自检（需 log:read）",
+        "responses": {
+          "200": {
+            "description": "卡片数与未覆盖 Controller",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultSelfCheck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "参数不合法（40000）"
+          },
+          "401": {
+            "description": "未登录（40100）"
+          },
+          "403": {
+            "description": "无权限（40300/40301）"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/portal/articles": {
+      "get": {
+        "tags": [
+          "前台"
+        ],
+        "summary": "已发布文章分页",
+        "parameters": [
+          {
+            "name": "pageNum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "页码，默认 1",
+            "example": 1
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "每页条数，默认 10，最大 200",
+            "example": 10
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "分类（含子分类）"
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "分页结果",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultPageArticle"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/portal/articles/{id}": {
+      "get": {
+        "tags": [
+          "前台"
+        ],
+        "summary": "已发布文章详情（阅读量 +1）",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "文章",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultArticle"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或未发布（40400）"
+          }
+        }
+      }
+    },
+    "/api/portal/categories": {
+      "get": {
+        "tags": [
+          "前台"
+        ],
+        "summary": "启用状态的分类树",
+        "responses": {
+          "200": {
+            "description": "树",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultCategoryTree"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "JSESSIONID"
+      }
+    },
+    "schemas": {
+      "Result": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {},
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "服务端时间戳（epoch 毫秒）"
+          }
+        }
+      },
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 0
+          },
+          "message": {
+            "type": "string"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "服务端时间戳（epoch 毫秒）"
+          }
+        }
+      },
+      "ResultLong": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "服务端时间戳（epoch 毫秒）"
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageNum": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pages": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "records": {
+            "type": "array",
+            "items": {}
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "roleCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ResultLoginUser": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoginUser"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "服务端时间戳（epoch 毫秒）"
+          }
+        }
+      },
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "authorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "authorName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "PENDING",
+              "PUBLISHED",
+              "REJECTED",
+              "OFFLINE"
+            ]
+          },
+          "auditorId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "auditOpinion": {
+            "type": "string"
+          },
+          "offlineReason": {
+            "type": "string"
+          },
+          "publishTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "viewCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/Article"
+              }
+            }
+          }
+        ]
+      },
+      "ResultPageArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Page"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "records": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Article"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ArticleSaveRequest": {
+        "type": "object",
+        "required": [
+          "title",
+          "content",
+          "categoryId"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "content": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "description": "乐观锁版本号，新文章可空"
+          }
+        }
+      },
+      "OpinionRequest": {
+        "type": "object",
+        "properties": {
+          "opinion": {
+            "type": "string"
+          }
+        }
+      },
+      "ReasonRequest": {
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "ArticleBatchRequest": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "opinion": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "BatchResult": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "success": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "failed": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "失败的 id 数组（不是个数）"
+          },
+          "reasons": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "id → 失败原因"
+          }
+        }
+      },
+      "ResultBatch": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/BatchResult"
+              }
+            }
+          }
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "parentId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "articleCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CategoryNode": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Category"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "children": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CategoryNode"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ResultCategoryList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ResultCategoryTree": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CategoryNode"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CategorySaveRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "status"
+        ],
+        "properties": {
+          "parentId": {
+            "type": "integer",
+            "description": "0 为根"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "roleCode": {
+                  "type": "string"
+                },
+                "roleName": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ResultUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        ]
+      },
+      "ResultPageUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Page"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "records": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/User"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "UserSaveRequest": {
+        "type": "object",
+        "required": [
+          "username"
+        ],
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "description": "留空表示不修改"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "AssignRolesRequest": {
+        "type": "object",
+        "properties": {
+          "roleIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "roleCode": {
+            "type": "string"
+          },
+          "roleName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "userCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "ResultRoleList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RoleSaveRequest": {
+        "type": "object",
+        "required": [
+          "roleCode",
+          "roleName"
+        ],
+        "properties": {
+          "roleCode": {
+            "type": "string",
+            "pattern": "^[A-Z_]{2,20}$"
+          },
+          "roleName": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "Permission": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permCode": {
+            "type": "string"
+          },
+          "permName": {
+            "type": "string"
+          },
+          "permGroup": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultPermissionList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "group": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "AssignPermsRequest": {
+        "type": "object",
+        "properties": {
+          "permIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "全量覆盖"
+          }
+        }
+      },
+      "Log": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "logType": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "httpMethod": {
+            "type": "string"
+          },
+          "params": {
+            "type": "string",
+            "description": "敏感字段已脱敏为 ***"
+          },
+          "ip": {
+            "type": "string"
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "SUCCESS",
+              "DENIED",
+              "FAIL"
+            ]
+          },
+          "errorMsg": {
+            "type": "string"
+          },
+          "costMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResultPageLog": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/Page"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "records": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Log"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "myDraft": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myPending": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myRejected": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "myPublished": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pendingTotal": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "publishedTotal": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "categoryCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "userCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ResultStats": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/Stats"
+              }
+            }
+          }
+        ]
+      },
+      "GuideCard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tips": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "highlight": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "apiPath": {
+            "type": "string"
+          },
+          "httpMethod": {
+            "type": "string"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "accessible": {
+            "type": "boolean"
+          },
+          "denyHint": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultGuideCardList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GuideCard"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GuideChatRequest": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "GuideChat": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string"
+          },
+          "cards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuideCard"
+            }
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "RULE",
+              "LLM",
+              "EMPTY"
+            ]
+          },
+          "notFound": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResultGuideChat": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/GuideChat"
+              }
+            }
+          }
+        ]
+      },
+      "Suggestion": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "INFO",
+              "WARN"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "cardId": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultSuggestionList": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Suggestion"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LlmSettings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "服务端总开关"
+          },
+          "configured": {
+            "type": "boolean",
+            "description": "当前是否会走模型（开关打开且有密钥）"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "USER",
+              "CONFIG",
+              "NONE"
+            ],
+            "description": "USER 本会话填写 / CONFIG 服务端配置"
+          },
+          "keyHint": {
+            "type": "string",
+            "description": "形如 sk-…a1b2，仅用于确认填的是哪一把"
+          },
+          "model": {
+            "type": "string"
+          },
+          "baseUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultLlmSettings": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LlmSettings"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "LlmSettingsRequest": {
+        "type": "object",
+        "required": [
+          "apiKey"
+        ],
+        "properties": {
+          "apiKey": {
+            "type": "string",
+            "description": "DeepSeek API Key，8–200 字符"
+          }
+        }
+      },
+      "LlmTestResult": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "latencyMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "ResultLlmTest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LlmTestResult"
+          },
+          "traceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultSelfCheck": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Result"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "cardCount": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "uncoveredPermittedMethods": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "duplicateIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "cards": {
+                    "type": "array",
+                    "items": {}
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
